@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 from   decimal import Decimal
 import glob
@@ -44,11 +44,11 @@ if event:
     with open(BAT + '/cycle_count') as f:
         cycle_count = int(f.read())
 
-    with open(BAT + '/charge_now') as f:
-        charge_now = int(f.read())
+    with open(BAT + '/energy_now') as f:
+        energy_now = int(f.read())
 
-    with open(BAT + '/current_now') as f:
-        current_now = int(f.read())
+    with open(BAT + '/power_now') as f:
+        power_now = int(f.read())
 
     with open(BAT + '/voltage_now') as f:
         voltage_now = int(f.read())
@@ -57,11 +57,11 @@ if event:
         voltage_min_design = int(f.read())
 
     # Energy = Wh
-    energy_now = charge_now * voltage_now # /1000000000000
+    charge_now = energy_now / voltage_now
     energy_min = charge_now * voltage_min_design # what uPower uses
 
     # Power = W
-    power_now = current_now * voltage_now
+    current_now = power_now / voltage_now
     power_min = current_now * voltage_min_design
 
     # Write to DB
@@ -111,10 +111,17 @@ else:
     # Average Power Use
     power_use_w = energy_used_wh / delta_h
 
+    batteries = glob.glob('/sys/class/power_supply/BAT*')
+    if batteries:
+        BAT = batteries[0]
+        name = os.path.basename(BAT)
+    else:
+        print('Sorry we couldn\'t find a battery in /sys/class/power_supply')
+        sys.exit()
+
     # Full Battery Power (presumably we should use min/nominal here?)
-    with open('/sys/class/power_supply/BAT1/charge_full') as f:
-        charge_full = int(f.read())
-    energy_full_wh = Decimal(charge_full/1000000000000) * resume['voltage_min_design']
+    with open(BAT + '/energy_full') as f:
+        energy_full_wh = int(f.read())
 
     # Percentage Battery Used / hour
     percent_per_h = 100 * power_use_w / energy_full_wh

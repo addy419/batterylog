@@ -1,13 +1,40 @@
 # batterylog
 Linux laptop battery logging tool
 
-A simple Python app with few dependencies that reads your sysfs-class-power numbers and records them to a local sqlite3 db with an "event" tag.
+Modified to work on Latest Thinkpads (AMD for me, tell me if it works on INTEL)
 
-It was built to track suspend power usage for Framework laptops, but is flexible/easily extensible to do all kinds of other stuff.
+A simple Python app with few dependencies that reads your sysfs-class-power numbers and records them to a local sqlite3 db with an "event" tag.
 
 
 # Running
-Makes sure you meet the requirements, clone the repo, and run `INSTALL.sh` - this will move the cloned repo to `/opt/batterylog` and install the script that logs into a sqlite3 DB at `/opt/batterylog/batterylog.db`.
+Makes sure you meet the requirements and clone the repo.
+```
+$ cd batterylog & sqlite3 batterylog.db < schema.sql
+$ cd ..
+$ sudo mkdir -p /opt & mv batterylog /opt/batterylog
+```
+
+You need to add the `batterylog.system-sleep` scripts to your systemd suspend hook.
+If you use a normal distro `sudo cp batterylog.system-sleep /usr/lib/systemd/system-sleep/batterylog` should work
+For nixos home-manager, (I use swayidle):
+```nix
+  services.swayidle = {
+    enable = true;
+    # For sway set it to sway-session.target
+    systemdTarget = "hyprland-session.target";
+    events = [
+      {
+        event = "before-sleep";
+        # remove sway lock if you don't use it
+        command = "/opt/batterylog/batterylog.py suspend & ${pkgs.swaylock}/bin/swaylock";
+      }
+      {
+        event = "after-resume";
+        command = "/opt/batterylog/batterylog.py resume";
+      }
+    ];
+  };
+```
 
 You can run `/opt/batterylog/batterylog` without any parameters and it will calculate the power usage from the last suspend/resume cycle:
 
