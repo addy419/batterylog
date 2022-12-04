@@ -14,8 +14,10 @@ $ cd ..
 $ sudo mkdir -p /opt & mv batterylog /opt/batterylog
 ```
 
-You need to add the `batterylog.system-sleep` scripts to your systemd suspend hook.
-If you use a normal distro `sudo cp batterylog.system-sleep /usr/lib/systemd/system-sleep/batterylog` should work
+You need to add the `batterylog.system-sleep` script to your systemd suspend hook.
+
+If you use a normal distro `sudo cp /opt/batterylog/batterylog.system-sleep /usr/lib/systemd/system-sleep/batterylog` should work.
+
 For nixos home-manager, (I use swayidle):
 ```nix
   services.swayidle = {
