@@ -28,11 +28,11 @@ For nixos home-manager, (I use swayidle):
       {
         event = "before-sleep";
         # remove sway lock if you don't use it
-        command = "/opt/batterylog/batterylog.py suspend & ${pkgs.swaylock}/bin/swaylock";
+        command = "${pkgs.python3} /opt/batterylog/batterylog.py suspend & ${pkgs.swaylock}/bin/swaylock";
       }
       {
         event = "after-resume";
-        command = "/opt/batterylog/batterylog.py resume";
+        command = "${pkgs.python3} /opt/batterylog/batterylog.py resume";
       }
     ];
   };

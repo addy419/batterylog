@@ -105,8 +105,8 @@ else:
     delta_h = Decimal(delta_s/3600)
 
     # Get Power Used - we use min vs now since we don't have voltage_avg / smoothing, probably safer...
-    # energy_used_wh = Decimal((suspend['energy_now'] - resume['energy_now'])/1000000000000)
-    energy_used_wh = Decimal((suspend['energy_min'] - resume['energy_min'])/1000000000000)
+    # energy_used_wh = Decimal((suspend['energy_now'] - resume['energy_now'])/1000000)
+    energy_used_wh = Decimal((suspend['energy_min'] - resume['energy_min'])/1000000)
 
     # Average Power Use
     power_use_w = energy_used_wh / delta_h
@@ -123,14 +123,16 @@ else:
     with open(BAT + '/energy_full') as f:
         energy_full_wh = int(f.read())
 
+    energy_full_wh = Decimal(energy_full_wh / 1000000)
+
     # Percentage Battery Used / hour
     percent_per_h = 100 * power_use_w / energy_full_wh
 
     # Time left from resume
-    until_empty_h = Decimal(resume['energy_min']/1000000000000)/ power_use_w
+    until_empty_h = Decimal(resume['energy_min']/1000000)/ power_use_w
 
 
     print('Slept for {:.2f} hours'.format(delta_h))
     print('Used {:.2f} Wh, an average rate of {:.2f} W'.format(energy_used_wh, power_use_w))
-    # print('At {:.2f}/Wh drain you battery would be empty in {:.2f} hours'.format(power_use_w, until_empty_h))
+    print('At {:.2f}/Wh drain you battery would be empty in {:.2f} hours'.format(power_use_w, until_empty_h))
     print('For your {:.2f} Wh battery this is {:.2f}%/hr or {:.2f}%/day'.format(energy_full_wh, percent_per_h, percent_per_h*24))
